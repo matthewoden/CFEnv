@@ -7,7 +7,7 @@ defmodule CFEnv.App do
     [VCAP_APPLICATION Details in the cloudfoundry docs.](https://docs.cloudfoundry.org/devguide/deploy-apps/environment-variable.html#VCAP-APPLICATION)
 
     Currently supports values available to CloudFoundry diego, but older
-    properties can be fetched with the `CFEnv.App.get_property` function
+    properties can be fetched with the `CFEnv.App.get_property` function.
     """
 
     @doc """
