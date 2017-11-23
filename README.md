@@ -174,7 +174,6 @@ def deps do
 end
 ```
 
-Documentation can be generated with
-[ExDoc](https://github.com/elixir-lang/ex_doc) and published on
-[HexDocs](https://hexdocs.pm). Once published, the docs can be found at
-[https://hexdocs.pm/cloudfoundry_services](https://hexdocs.pm/cloudfoundry_services).
+## Local Development.
+
+Use the `.env` file to set up your local environemtn before testing.
