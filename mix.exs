@@ -12,11 +12,10 @@ defmodule CFEnv.Mixfile do
       package: package(),
       name: "CFEnv",
       source_url: "https://github.com/matthewoden/CFEnv",
-      docs: [main: "CFEnv", extras: []]
+      docs: docs()
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       mod: {CFEnv.Application, []},
@@ -24,13 +23,18 @@ defmodule CFEnv.Mixfile do
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:poison, "~> 3.0", optional: true},
-      {:ex_doc, "~> 0.16", optional: true, only: :dev, runtime: false}      
+      {:ex_doc, "~> 0.16", only: :dev, runtime: false}      
     ]
   end
+
+  defp docs do
+    [ main: "CFEnv", extras: ["README.md"] ]
+  end
+
+
 
   def description do
     "A helper application for fetching and parsing CloudFoundry service bindings, and application information."
