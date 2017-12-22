@@ -67,10 +67,10 @@ this way.
 ```elixir
 config :cf_env,
   default_services:
-    %{ "service_name" =>
-      %{ "credentials" =>
-        %{ "username" => "u5er",
-          "password" => "pa$$w0rd"
+    %{ "service_name" => %{
+        "credentials" => %{
+            "username" => "u5er",
+            "password" => "pa$$w0rd"
         }
       }
     }
@@ -78,7 +78,7 @@ config :cf_env,
 
 ## Data Conversion
 
-On init, `VCAP_SERVICES` and `VCAP_APPLUIATION` are parsed from JSON.
+On init, `VCAP_SERVICES` and `VCAP_APPLICATION` are parsed from JSON.
 
 And each value is transformed into a map. If an alias key is present on the
 credentials, the service will be mapped to use that name instead. This is useful

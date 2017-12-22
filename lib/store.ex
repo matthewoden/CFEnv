@@ -31,11 +31,10 @@ defmodule CFEnv.Store do
         {:ok, %{ services: services, app: app } }
     end
   
-    defp parse_services(default_services, vcap_services) do
+    def parse_services(default_services, vcap_services) do
         vcap_services
         |> @parser.decode!()
-        |> Map.get("VCAP_SERVICES", %{})
-        |> Map.get("user-provided", [])
+        |> Map.get("user-provided", [%{}])
         |> Enum.reduce(default_services, fn
                 (%{"name" => name, "credentials" => credentials} = service, services) ->
                     key = Map.get(credentials, "alias", name)
@@ -50,9 +49,7 @@ defmodule CFEnv.Store do
     end
 
     defp parse_application(vcap_application) do
-        @parser.decode!(vcap_application) 
-        |> Map.get("VCAP_APPLICATION", %{})
-        
+        @parser.decode!(vcap_application)       
     end
 
 
