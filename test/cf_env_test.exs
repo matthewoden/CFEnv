@@ -2,6 +2,11 @@ defmodule CFEnvTest do
   use ExUnit.Case
   doctest CFEnv
 
+  setup do
+    Application.put_env(:cf_env, :default_services, %{})
+    CFEnv.Store.reparse()
+  end
+
   test "gets the application" do
     assert CFEnv.get_application() == %{
       "name" => "my-app", 
@@ -21,6 +26,7 @@ defmodule CFEnvTest do
   end
 
   test "gets the services" do
+
     assert CFEnv.get_services == %{"cf-env-test" =>
       %{"credentials" => 
         %{"database" => "database","password" => "passw0rd", 

@@ -72,17 +72,37 @@ defmodule CFEnv do
   where each key is a string. You can provide reasonable defaults for
   local development this way.
 
+  Accessing credentials is the most common use case for service bindings. If no 
+  `credentials` key is present on the map,  then it is assumed that the
+  entire map associated with the service are credentials.
+
   ```
   config :cf_env,
     default_services: %{ 
       "service_name" => %{ 
-        "credentials": %{
+        "username" => "u5er",
+        "password" => "pa$$w0rd"
+      }
+    }
+  ```
+
+  To add non-credential properties in as defaults, make sure a credentials key
+  is present in your the default configuraion.
+  ```
+  config :cf_env,
+    default_services: %{ 
+      "service_name" => %{ 
+        "tags" => [],
+        "credentials" => %{
             "username" => "u5er",
             "password" => "pa$$w0rd"
         }
       }
     }
   ```
+
+
+
 
   ## Data Conversion
 

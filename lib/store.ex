@@ -5,32 +5,41 @@ defmodule CFEnv.Store do
     alias CFEnv.Adapters.JSONParser
     @moduledoc """
     A GenServer, storing a parsed version of `VCAP_SERVICES` and 
-    VCAP_APPLICATION. 
+    `VCAP_APPLICATION`.
     """
 
     @default_parser if Code.ensure_loaded?(Poison), do: JSONParser.Poison, else: nil
 
     @parser Application.get_env(:cf_env, :json_parser, @default_parser) || raise "No JSON parser specified in configuration, and default JSON adapter is unavailable. Please include a JSON parser. See hexdocs for details."
     
-    @defaults Application.get_env(:cf_env, :default_services, %{})
-    
+    @doc """
+    Starts the Credential Store.
+    """
     @spec start_link(term) :: {:ok, pid} | {:error, term}
     def start_link(_) do
         opts = [name: __MODULE__]
-        GenServer.start_link(__MODULE__, [@defaults], opts)
+        GenServer.start_link(__MODULE__, [], opts)
     end
 
+    @doc false
     @impl true    
-    def init([default_services]) do
-        vcap_services = System.get_env("VCAP_SERVICES") || "{}"
-        vcap_application = System.get_env("VCAP_APPLICATION") || "{}"
-
-        services = parse_services(default_services, vcap_services)
-        app = parse_application(vcap_application)
-
+    def init([]) do
+        app = parse_application()
+        services = combine_services()
+        
         {:ok, %{ services: services, app: app } }
     end
   
+    def combine_services() do
+        vcap_services = System.get_env("VCAP_SERVICES") || "{}"
+        default_services = Application.get_env(:cf_env, :default_services, %{})
+
+        default_services
+        |> Enum.map(&format_service/1)
+        |> Map.new()
+        |> parse_services(vcap_services)
+    end
+
     def parse_services(default_services, vcap_services) do
         vcap_services
         |> @parser.decode!()
@@ -48,7 +57,16 @@ defmodule CFEnv.Store do
             end)
     end
 
-    defp parse_application(vcap_application) do
+    defp format_service({key, %{"credentials" => _ } = service }) do
+        {key, service}
+    end
+
+    defp format_service({key, value}) do
+        {key, %{ "credentials" => value } }
+    end
+
+    defp parse_application() do
+        vcap_application = System.get_env("VCAP_APPLICATION") || "{}"
         @parser.decode!(vcap_application)       
     end
 
@@ -71,6 +89,7 @@ defmodule CFEnv.Store do
     @spec list() :: map
     def list(), do: GenServer.call(__MODULE__, :list)
   
+    def reparse(), do: GenServer.call(__MODULE__, :reparse)
     ###
     # Genserver
     ###
@@ -96,6 +115,11 @@ defmodule CFEnv.Store do
 
     def handle_call({:get_app, key}, _from, state) do
         {:reply, state.app[key], state }
+    end
+
+    def handle_call(:reparse, _from, state) do
+        state = Map.put(state, :services, combine_services())
+        {:reply, state, state }
     end
 end
       

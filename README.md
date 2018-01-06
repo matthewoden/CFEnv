@@ -176,4 +176,4 @@ end
 
 ## Local Development.
 
-Use the `.env` file to set up your local environemtn before testing.
+Use the `.env` file to set up your local environement before testing.
