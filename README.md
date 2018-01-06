@@ -45,7 +45,7 @@ CFEnv.Service.credentials("dynamo-db")
 # returns
 
 %{"database" => "dynamo", "accessKeyId" => "abcd", "secretAccessKey" => "defg",
-"tableName" => "test-table" }
+  "tableName" => "test-table" }
 ```
 
 Or grabbing the current application name.
@@ -68,10 +68,8 @@ this way.
 config :cf_env,
   default_services:
     %{ "service_name" => %{
-        "credentials" => %{
-            "username" => "u5er",
-            "password" => "pa$$w0rd"
-        }
+        "username" => "u5er",
+        "password" => "pa$$w0rd"
       }
     }
 ```
@@ -176,4 +174,4 @@ end
 
 ## Local Development.
 
-Use the `.env` file to set up your local environement before testing.
+Use the `.env` file to set up your local environment before testing.
