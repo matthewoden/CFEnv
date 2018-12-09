@@ -6,44 +6,10 @@ Variables.
 A small application for parsing and retrieving `VCAP_SERVICES`, and
 `VCAP_APPLICATION.`
 
-Expects a json parser to be provided, and comes with a `Poison` adapter by
-default.
-
-To use, add Poison to your mix.exs dependencies:
+## API Preview
 
 ```elixir
-  def deps do
-      [{:poison, "~> 3.0"}]
-  end
-```
-
-Then, update your dependencies:
-
-```bash
-  $ mix deps.get
-```
-
-The adapter will automatically be picked up and used by CFEnv, unless explicitly
-configured for another adapter. If you want to manually add this parser to the
-configuration, simply include the following:
-
-    config :cf_env
-        json_parser: CFEnv.Adapters.JSONParser.Poison
-
-## Using CFEnv
-
-There are two main modules: `CFEnv.Service` and `CFEnv.App`, and each module
-returns values from VCAP_SERVICES, and VCAP_APPLICATION, respectively.
-
-### Usage Example
-
-Here's a quick example of grabbing the credentials for a service.
-
-```elixir
-CFEnv.Service.credentials("dynamo-db")
-
-# returns
-
+> MyApp.Env.service_credentials("dynamo-db")
 %{"database" => "dynamo", "accessKeyId" => "abcd", "secretAccessKey" => "defg",
   "tableName" => "test-table" }
 ```
@@ -51,18 +17,103 @@ CFEnv.Service.credentials("dynamo-db")
 Or grabbing the current application name.
 
 ```elixir
-CFEnv.App.name()
-
-# returns
-
+iex(1)> MyApp.Env.app_name()
 "test_app"
 ```
 
-### Default Services (and working locally)
+See [the documentation](https://hexdocs.pm/cf_env/CFEnv.html) for other api
+examples.
 
-Default services bindings can be passed in as a map from configuration, where
-each key is a string. You can provide reasonable defaults for local development
-this way.
+## Usage
+
+You'll need to add cf_env as a dependancy to your mix.exs file, along with a
+module for parsing json. `CFEnv` supports `Poison` and `Jason` by
+default, though custom JSON adapters can be provided. See `CFEnv.Adapters.JSON` for details.
+
+### Dependancies
+
+```elixir
+  def deps do
+      [
+        {:cf_env, "~> 1.0"},
+        {:jason, "~> 1.1"},
+
+        # or, if you prefer poison
+        {:poison, "~> 3.0"}
+      ]
+  end
+```
+
+Then, fetch your dependencies:
+
+```bash
+  $ mix deps.get
+```
+
+You'll need to create a module that represents your service bindings.
+
+```elixir
+defmodule MyApp.Env do
+  use CFEnv,
+    otp_app: :my_app,
+    json_engine: Jason
+    ...
+```
+
+Finally, add the process to your supervision tree:
+
+```elixir
+    # For Elixir v1.5 and later
+    {MyApp.Env, [ default_bindings: %{} ]}
+
+    # For Elixir v1.4 and earlier
+    supervisor(MyApp.Env, [  default_bindings: %{}])
+```
+
+## Configuration
+
+You can provide options as application config, or with runtime config. Runtime config always overrides application config.
+
+### Application Config
+
+```elixir
+config :my_app, MyApp.Env
+  json_engine: Jason,
+  default_services: %{
+    "some_db" => %{
+      "username" => System.get_env("TEST_USER"),
+      "password" => System.get_env("TEST_PASSWORD")
+    }
+  }
+  ...
+```
+
+### Runtime Config
+
+```elixir
+options = [
+  json_engine: Jason,
+  default_services: %{
+    "some_db" => %{
+      "username" => System.get_env("TEST_USER"),
+      "password" => System.get_env("TEST_PASSWORD")
+    }
+  }]
+
+# explicit start
+MyApp.Env.start_link(])
+
+# supervisor start
+children = [
+  {MyApp.Env, [options]}
+]
+
+
+```
+
+## Default Services
+
+Working with VCAP_SERVICES can be a pain. Instead, default services bindings can be passed in as a map from configuration, where each key is a string. You can provide reasonable defaults for local development this way.
 
 ```elixir
 config :cf_env,
@@ -158,20 +209,6 @@ is reduced to the following map:
 }
 ```
 
-## Installation
-
-The package can be installed by adding `cf_env` to your list of dependencies in
-`mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:cf_env, "~> 0.1.0"},
-    {:poison, "~> 3.0"} # optional, used for the Posion JSON parsing adapter
-  ]
-end
-```
-
-## Local Development.
+## Local Development / Testing
 
 Use the `.env` file to set up your local environment before testing.
