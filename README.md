@@ -24,6 +24,10 @@ iex(1)> MyApp.Env.app_name()
 See [the documentation](https://hexdocs.pm/cf_env/CFEnv.html) for other api
 examples.
 
+## Migration to 1.0.0
+
+CFEnv is no longer an application, but a process started within your application, with functions created as a macro. All functionality is present, but CFEnv.Services and CFEnv.Application have been combined. See usage instructions below, and the `CFEnv` module.
+
 ## Usage
 
 You'll need to add cf_env as a dependancy to your mix.exs file, along with a

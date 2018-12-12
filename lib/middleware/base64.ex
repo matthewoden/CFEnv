@@ -44,5 +44,5 @@ defmodule CFEnv.Middleware.Base64 do
     end
   end
 
-  defp crawl(otherwise, _callback), do: IO.inspect(otherwise)
+  defp crawl(otherwise, _callback), do: otherwise
 end
